@@ -1,4 +1,4 @@
-footerText = ""
+const FOOTER_TEXT = ""
 
 function test(){
   defaultRequiredHours = 10
@@ -8,17 +8,13 @@ function test(){
   for (var i = 0; i < uniqueUserNamesList.length-1; i++) {
     Logger.log(uniqueUserNamesList[i])
     //Logger.log(mergeToTable(rowMerge(uniqueUserNamesList[i])))
-    sendMail(uniqueUserNamesList[i])
+    sendUpdateEmail(uniqueUserNamesList[i])
   }
   
-  //Logger.log(mergeToTable(rowMerge("hmo")))
-  //Logger.log(addRowAtDate(rowMerge("nrado175")))
-  
-  //Logger.log(mergeToTable(addRowAtDate(rowMerge("nrado175"))))
   sendReports();
 }
 
-function sendMail(lookupUserName) {
+function sendUpdateEmail(lookupUserName) {
     var merge = rowMerge(lookupUserName)
     var table = mergeToTable(merge)
     var lengthOfMerge = merge.length;
@@ -28,16 +24,18 @@ function sendMail(lookupUserName) {
     var hoursDecimal = addHours(lookupUserName);
     var hours = Math.floor(Math.round(hoursDecimal * 1000) / 1000)
     b = addHoursFromMerge(merge);
-    console.log("yeet "+hoursDecimal)
+    //console.log("yeet "+hoursDecimal)
     var minutes = Math.round(hoursDecimal%1*60)
     var subject = "You have completed " + hours + " CSHS hours!"
-    if (minutes == 0){
-      minutes = "00" 
+    //add leading zero of minutes place is a single digit 
+    if ((""+minutes).length == 1){
+      minutes = "0"+minutes; 
     }
     var htmlBody = "Hello " + firstName + ",<br><br>" + getGreeting() + "<br>" + getLameProgressBar(Math.floor(hoursDecimal * 10) / 10,getRequiredHours(lookupUserName)) + "<br><br>You have completed " + hours + ":" + minutes + " of CSHS time! You can see a summary below.<br><br>" + table + "<br>Bookmark <a href='"+generatePreFilledLink(lookupUserName,firstName,lastName)+"'>this</a> pre-filled link ";
+
     //Actually Sends Email to Someone
-    //if (lookupUserName=="nrado175"){
-    if (true){
+    //if (lookupUserName=="che193"){
+    if (false){
       MailApp.sendEmail({to: lookupUserName+"@bethlehemschools.org",name: "Clyde",subject: subject,htmlBody: htmlBody});
       console.log("Email sent to: " + lookupUserName)
     }
@@ -47,15 +45,18 @@ function sendMail(lookupUserName) {
 function getLameProgressBar(part, whole){
   var bar = ""
   var percent = (part/whole)*100
+  if (percent>100){
+    percent = 100;
+  }
   for (var i = 0; i < percent; i++) {
     bar = bar + "l"
   }
   bar = "<p><span style=color:lightgreen>" + bar + "</span>"
-    for (var i = 0; i < 100-percent; i++) {
+  for (var i = 0; i < 100-percent; i++) {
     bar = bar + "l"
   }
   bar = "<b>" + bar + "</b>" + " (Progress: " + part + "/" + whole + " required hours)</p>"
-  Logger.log(bar)
+  //Logger.log(bar)
   return(bar)
 
 }
@@ -90,7 +91,7 @@ function addHours(lookupUserName) {
   // Fetch values for each row in the Range.
   var data = dataRange.getValues();
   var totalHours = 0
-  console.log(data.length)
+  //console.log(data.length)
   for (var i = 0; i < data.length; ++i) {
     
     var row = data[i]; //row is equal to list which is of the elements in i column, each cell is an element
@@ -106,7 +107,7 @@ function addHours(lookupUserName) {
         totalHours += hours + (min/60)
     }
   }
-  console.log(totalHours)
+  //console.log(totalHours)
   return totalHours
   
 }
@@ -123,13 +124,13 @@ function addHoursFromMerge(merge) {
   var otherHoursLastMonth = 0
   for (var i = 0; i < merge.length; ++i) { 
     var row = merge[i]; //row is equal to list which is of the elements in i column, each cell is an element
-    console.log(row);
+    //console.log(row);
     var formDate = row[0]; 
     var userName = row[1];
     var firstName = row[2]; 
     var lastName = row[3];
     var date = row[4]; 
-        //console.log(date)
+    //console.log(date)
     var hours = row[5]; 
     var min = row[6];
     var description = row[7]; 
@@ -138,7 +139,7 @@ function addHoursFromMerge(merge) {
     //Logger.log(date.getMonth()-1)
     
     //TODO: figure out what to do with janurary
-    console.log(description + hours);
+    //console.log(description + hours);
     if(date.getMonth() == month-1){ //adds up hours for the previous month
       totalHours += hours + (min/60)
       if(description == "CSHS Tutoring"){
@@ -153,7 +154,7 @@ function addHoursFromMerge(merge) {
     }
     //else if (date.getMonth() != month){ //adds up hours for the other months, but not current month
     else {
-      console.log(hours);
+      //console.log(hours);
       totalHours += hours + (min/60)
       if(description == "CSHS Tutoring"){
         meetingHours += hours + (min/60)
@@ -163,12 +164,12 @@ function addHoursFromMerge(merge) {
       }
       else{
         otherHours += hours + (min/60)
-        console.log(otherHours);
+        //console.log(otherHours);
       }
     }
   }
   statsMerge.push([userName,totalHours,tutoringHours,meetingHours,otherHours,tutoringHoursLastMonth,meetingHoursLastMonth,otherHoursLastMonth,firstName,lastName])
-  Logger.log(statsMerge)
+  //Logger.log(statsMerge)
 
   return totalHours
 }
@@ -200,12 +201,12 @@ function rowMerge(lookupUserName) {
         mergedArray.push([formDate,userName,firstName,lastName,date,hours,min,description]);
     }
   }
-  Logger.log(mergedArray)
+  //Logger.log(mergedArray)
   return mergedArray
 }
 
 function mergeToTable(merge,dateIndex) { 
-  console.log(merge)
+  //console.log(merge)
   s = " style='border:1px solid'" //style for td, th
   html = "<table style='width:100%; border-collapse: collapse; border:1px solid black'><th"+s+">Date</th><th"+s+">Hours</th><th"+s+">Mins</th><th"+s+">Description</th></tr>"
   for (i = 0; i < merge.length; i++) {
@@ -216,7 +217,7 @@ function mergeToTable(merge,dateIndex) {
       }
       else if (j == 4){
         date = merge[i][j]
-        console.log("date"+date)
+        //console.log("date"+date)
         daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
         html = html + "<td style='border:1px solid;padding-left:5px'>" + daysOfWeek[date.getDay()]+ ", " + (date.getMonth()+1) + "/" +date.getDate() + ", " + date.getFullYear() + "</td>";
       }
@@ -231,15 +232,15 @@ function mergeToTable(merge,dateIndex) {
   return html
 }
 
-formLink = "https://www.docs.google.com/forms/example"
 function generatePreFilledLink(userName,firstName,lastName) {
-  return formLink+"&entry.1129123924=" + userName + "&entry.624029689=" + firstName + "&entry.172496163=" + lastName;
+  //old link return "https://docs.google.com/forms/d/e/1FAIpQLSdk8TmquLj2xm1EkbQCgMAbtk_SIpX0XuPDiecqc2HKoKAlFw/viewform?usp=pp_url&entry.76228359=" + userName + "&entry.1315765559=" + firstName + "&entry.1356290163=" + lastName
+ return "https://docs.google.com/forms/d/e/1FAIpQLSfBKs37oy8vdRuu2OaLCV-KP6LF7bFPqrAFC5saOai2sJKy8A/viewform?usp=pp_url&entry.1129123924=" + userName + "&entry.624029689=" + firstName + "&entry.172496163=" + lastName;
 }
 
 function loadData() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Data Log");
   var startRow = 2; // First row of data to process
-  var numRows = 15; // Number of rows to process
+  var numRows = 50; // Number of rows to process
   // Fetch the range of cells A2:B3
   var dataRange = sheet.getRange(startRow, 1, numRows, 100);
   // Fetch values for each row in the Range.
@@ -273,13 +274,13 @@ function addRowAtDate(merge){ //adds a line into the merge at where the previous
 function getGreeting(){
   var today = new Date()
   var dayNumber = today.getDay()
-  var daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
-  var adjectivesList = [["Super","Splendid","Serene","Spectacular"],["Marvelous","Magical","Magnificent"],["Terrific"],["Wonderful"],["Terrific"],["Fabulous","Fantastic","Festive"],["Super","Splendid","Serene","Spectacular"]]
+  const DAYS_OF_WEEK = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+  const ADJECTIVES_LIST = [["Super","Splendid","Serene","Spectacular"],["Marvelous","Magical","Magnificent"],["Terrific","Top Notch"],["Wonderful"],["Terrific","Top Notch"],["Fabulous","Fantastic","Festive"],["Super","Splendid","Serene","Spectacular"]]
 
-  var adjective = adjectivesList[dayNumber][Math.floor(Math.random()*adjectivesList[dayNumber].length)]
+  var adjective = ADJECTIVES_LIST[dayNumber][Math.floor(Math.random()*ADJECTIVES_LIST[dayNumber].length)]
   //var adjective = [Math.floor(Math.random()*adjectivesList[dayNumber].length)]
 
-  var greeting = "I hope you are having a " + adjective + " " + daysOfWeek[dayNumber] +"!"
+  var greeting = "I hope you are having a " + adjective + " " + DAYS_OF_WEEK[dayNumber] +"!"
 
   //Logger.log(greeting)
   return(greeting)
@@ -321,7 +322,7 @@ function getHoursChart(){
     otherHoursLastMonth.push(statsMerge[i][7])
   }
 
-  Logger.log(names)
+  //Logger.log(names)
 
   names = JSON.stringify(names)
   meetingHours = "[" + meetingHours + "]"
@@ -351,19 +352,20 @@ function sendReports(){
   var data = dataRange.getValues();
 
   for (var i = 0; i < data.length; ++i) {
-    var row = data[i];
-    var teacherEmail = row[3];
-    var teacherName = row[4];
+    row = data[i];
+    teacherEmail = row[3];
+    teacherName = row[4];
     sendTeacherEmail(teacherEmail,teacherName);
   }
   return(defaultRequiredHours);
 }
 
 function sendTeacherEmail(email, name){
-  var htmlBody = "Hello " + name + ",<br><br>"+getGreeting()+"<br><br>Here's how your students have been doing:<br><br>" + "<img src='"+ getHoursChart() +"' alt='Hours Chart' <br><br>"+footerText+">"
+  Logger.log("teacher email started")
+  var htmlBody = "Hello " + name + ",<br><br>"+getGreeting()+"<br><br>Here's how your students have been doing:<br><br>" + "<img src='"+ getHoursChart() +"' alt='Hours Chart'>"
   var subject = "Here's how your students have been doing..."
 
-  if (true){
+  if (false){
     MailApp.sendEmail({to: email,name: "Clyde",subject: subject,htmlBody: htmlBody});
   }
   Logger.log(htmlBody)
