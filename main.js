@@ -1,4 +1,5 @@
 const FOOTER_TEXT = ""
+const SEND_EMAILS = true
 
 function test(){
   defaultRequiredHours = 10
@@ -35,7 +36,7 @@ function sendUpdateEmail(lookupUserName) {
 
     //Actually Sends Email to Someone
     //if (lookupUserName=="che193"){
-    if (false){
+    if (SEND_EMAILS){
       MailApp.sendEmail({to: lookupUserName+"@bethlehemschools.org",name: "Clyde",subject: subject,htmlBody: htmlBody});
       console.log("Email sent to: " + lookupUserName)
     }
@@ -85,7 +86,7 @@ function addHours(lookupUserName) {
 
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Data Log");
   var startRow = 2; // First row of data to process
-  var numRows = 50; // Number of rows to process
+  var numRows = 1000; // Number of rows to process
   // Fetch the range of cells A2:B3
   var dataRange = sheet.getRange(startRow, 1, numRows, 10);
   // Fetch values for each row in the Range.
@@ -179,7 +180,7 @@ function rowMerge(lookupUserName) {
 
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Data Log");
   var startRow = 2; // First row of data to process
-  var numRows = 200; // Number of rows to process
+  var numRows = 1000; // Number of rows to process
   // Fetch the range of cells A2:B3
   var dataRange = sheet.getRange(startRow, 1, numRows, 100);
   // Fetch values for each row in the Range.
@@ -240,7 +241,7 @@ function generatePreFilledLink(userName,firstName,lastName) {
 function loadData() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Data Log");
   var startRow = 2; // First row of data to process
-  var numRows = 50; // Number of rows to process
+  var numRows = 1000; // Number of rows to process
   // Fetch the range of cells A2:B3
   var dataRange = sheet.getRange(startRow, 1, numRows, 100);
   // Fetch values for each row in the Range.
@@ -365,7 +366,7 @@ function sendTeacherEmail(email, name){
   var htmlBody = "Hello " + name + ",<br><br>"+getGreeting()+"<br><br>Here's how your students have been doing:<br><br>" + "<img src='"+ getHoursChart() +"' alt='Hours Chart'>"
   var subject = "Here's how your students have been doing..."
 
-  if (false){
+  if (SEND_EMAILS){
     MailApp.sendEmail({to: email,name: "Clyde",subject: subject,htmlBody: htmlBody});
   }
   Logger.log(htmlBody)
