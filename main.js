@@ -346,7 +346,7 @@ function getHoursChart(){
 function sendReports(){
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Settings");
   var startRow = 3; // First row of data to process
-  var numRows = 2; // Number of rows to process
+  var numRows = 10; // Number of rows to process
   // Fetch the range of cells A2:B3
   var dataRange = sheet.getRange(startRow, 1, numRows, 10);
   // Fetch values for each row in the Range.
@@ -356,7 +356,9 @@ function sendReports(){
     row = data[i];
     teacherEmail = row[3];
     teacherName = row[4];
-    sendTeacherEmail(teacherEmail,teacherName);
+    if (teacherName != "" && teacherEmail != ""){
+      sendTeacherEmail(teacherEmail,teacherName);
+    }
   }
   return(defaultRequiredHours);
 }
