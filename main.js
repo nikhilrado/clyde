@@ -4,7 +4,6 @@ const SEND_EMAILS = true
 function test(){
   defaultRequiredHours = 10
   loadData()
-  console.log(getRequiredHours("nrado175"));
   Logger.log(uniqueUserNamesList)
   for (var i = 0; i < uniqueUserNamesList.length-1; i++) {
     Logger.log(uniqueUserNamesList[i])
@@ -13,6 +12,10 @@ function test(){
   }
   
   sendReports();
+}
+
+function test2(){
+  console.log(addHours("dzhou840"));
 }
 
 function sendUpdateEmail(lookupUserName) {
@@ -82,6 +85,7 @@ function getRequiredHours(lookupUserName) {
   return(defaultRequiredHours);
 }
 
+//adds hours from a username, returns value formatted to two decimal places
 function addHours(lookupUserName) {
 
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Data Log");
@@ -109,8 +113,7 @@ function addHours(lookupUserName) {
     }
   }
   //console.log(totalHours)
-  return totalHours
-  
+  return totalHours.toFixed(2)
 }
 
 function addHoursFromMerge(merge) {
@@ -209,7 +212,7 @@ function rowMerge(lookupUserName) {
 function mergeToTable(merge,dateIndex) { 
   //console.log(merge)
   s = " style='border:1px solid'" //style for td, th
-  html = "<table style='width:100%; border-collapse: collapse; border:1px solid black'><th"+s+">Date</th><th"+s+">Hours</th><th"+s+">Mins</th><th"+s+">Description</th></tr>"
+  html = "<table style='border-collapse: collapse; border:1px solid black'><th"+s+">Date</th><th"+s+">Hours</th><th"+s+">Mins</th><th"+s+">Description</th></tr>"
   for (i = 0; i < merge.length; i++) {
     html = html + "<tr"+s+">"
     for (j = 0; j < merge[i].length; j++){
