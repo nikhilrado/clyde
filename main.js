@@ -8,10 +8,10 @@ function test(){
   for (var i = 0; i < uniqueUserNamesList.length-1; i++) {
     Logger.log(uniqueUserNamesList[i])
     //Logger.log(mergeToTable(rowMerge(uniqueUserNamesList[i])))
-    sendUpdateEmail(uniqueUserNamesList[i])
+    //sendUpdateEmail(uniqueUserNamesList[i])
   }
   
-  sendReports();
+  //sendReports();
 }
 
 function test2(){
@@ -68,16 +68,16 @@ function getLameProgressBar(part, whole){
 function getRequiredHours(lookupUserName) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Settings");
   var startRow = 3; // First row of data to process
-  var numRows = 2; // Number of rows to process
+  var numRows = 50; // Number of rows to process
   // Fetch the range of cells A2:B3
-  var dataRange = sheet.getRange(startRow, 1, numRows, 10);
+  var dataRange = sheet.getRange(startRow, 1, numRows, 2);
   // Fetch values for each row in the Range.
   var data = dataRange.getValues();
-
-
-  for (var i = 0; i < data.length; ++i) {
+  Logger.log(data)
+  for (var i = 0; i < data.length; i++) {
     var row = data[i];
     var userName = row[0];
+    //Logger.log(userName)
     if (userName == lookupUserName){
       return row[1];
     }
@@ -212,7 +212,7 @@ function rowMerge(lookupUserName) {
 function mergeToTable(merge,dateIndex) { 
   //console.log(merge)
   s = " style='border:1px solid'" //style for td, th
-  html = "<table style='border-collapse: collapse; border:1px solid black'><th"+s+">Date</th><th"+s+">Hours</th><th"+s+">Mins</th><th"+s+">Description</th></tr>"
+  html = "<table style='width:100%; border-collapse: collapse; border:1px solid black'><th"+s+">Date</th><th"+s+">Hours</th><th"+s+">Mins</th><th"+s+">Description</th></tr>"
   for (i = 0; i < merge.length; i++) {
     html = html + "<tr"+s+">"
     for (j = 0; j < merge[i].length; j++){
