@@ -8,10 +8,10 @@ function test(){
   for (var i = 0; i < uniqueUserNamesList.length-1; i++) {
     Logger.log(uniqueUserNamesList[i])
     //Logger.log(mergeToTable(rowMerge(uniqueUserNamesList[i])))
-    //sendUpdateEmail(uniqueUserNamesList[i])
+    sendUpdateEmail(uniqueUserNamesList[i])
   }
   
-  //sendReports();
+  sendReports();
 }
 
 function test2(){
@@ -144,7 +144,7 @@ function addHoursFromMerge(merge) {
     
     //TODO: figure out what to do with janurary
     //console.log(description + hours);
-    if(date.getMonth() == month-1){ //adds up hours for the previous month
+    if(date.getMonth() == month){ //adds up hours for the previous month
       totalHours += hours + (min/60)
       if(description == "CSHS Tutoring"){
         meetingHoursLastMonth += hours + (min/60)
@@ -172,8 +172,15 @@ function addHoursFromMerge(merge) {
       }
     }
   }
-  statsMerge.push([userName,totalHours,tutoringHours,meetingHours,otherHours,tutoringHoursLastMonth,meetingHoursLastMonth,otherHoursLastMonth,firstName,lastName])
-  //Logger.log(statsMerge)
+
+  //this section rounds our numerical values to 3 decimal places which compresses outputted data
+  var rowToAppend = [userName,totalHours,tutoringHours,meetingHours,otherHours,tutoringHoursLastMonth,meetingHoursLastMonth,otherHoursLastMonth,firstName,lastName]
+  for (var i = 0; i < rowToAppend.length; i++){
+    if (!isNaN(rowToAppend[i])){
+      rowToAppend[i] = parseFloat(rowToAppend[i].toFixed(3))
+    }
+  }
+  statsMerge.push(rowToAppend)
 
   return totalHours
 }
@@ -304,8 +311,10 @@ function getHoursChart(){
   var meetingHoursLastMonth = []
   var tutoringHoursLastMonth = []
   var otherHoursLastMonth = [] 
+  var hoursLeft = [] // hours remaining quota for the year
   for (var i = 0; i < statsMerge.length; i++) {
-    names.push((i+1) +" "+ statsMerge[i][8])
+    //names.push((i+1) +" "+ statsMerge[i][8]) //this line of code added numbers to names
+    names.push(statsMerge[i][8])
   }
   for (var i = 0; i < statsMerge.length; i++) {
     meetingHours.push(statsMerge[i][2])
@@ -325,24 +334,31 @@ function getHoursChart(){
   for (var i = 0; i < statsMerge.length; i++) {
     otherHoursLastMonth.push(statsMerge[i][7])
   }
+  for (var i = 0; i < statsMerge.length; i++) {
+    // calculates the hours required for each person. Also cool ternary statement example.
+    var requiredHoursTemp = getRequiredHours(statsMerge[i][0])-statsMerge[i][1]
+    hoursLeft.push(requiredHoursTemp > 0? requiredHoursTemp : 0)
+  }
 
   //Logger.log(names)
 
-  names = JSON.stringify(names)
+  namesJSON = JSON.stringify(names)
   meetingHours = "[" + meetingHours + "]"
   tutoringHours = "[" + tutoringHours + "]"
   otherHours = "[" + otherHours + "]"
   meetingHoursLastMonth = "[" + meetingHoursLastMonth + "]"
   tutoringHoursLastMonth = "[" + tutoringHoursLastMonth + "]"
   otherHoursLastMonth = "[" + otherHoursLastMonth + "]"
+  hoursLeft = "[" + hoursLeft + "]"
 
-  //chartSlug = '{type:"horizontalBar",data:{labels:'+names+',datasets:[{label:"CSHSMeetings",backgroundColor:"rgb(255,99,132)",stack:"Stack0",data:'+meetingHours+',},{label:"Tutoring",backgroundColor:"rgb(54,162,235)",stack:"Stack0",data:'+tutoringHours+',},{label:"Other",backgroundColor:"rgb(75,192,192)",stack:"Stack0",data:'+otherHours+',},],},options:{title:{display:true,text:"CSHS Hours",},tooltips:{mode:"index",intersect:false,},responsive:true,scales:{xAxes:[{stacked:true,},],yAxes:[{stacked:true,},],},},}'
+  // rough approximation of image height with more names, in order for all names to be visible
+  chartImageHeight = 450 + (names.length-25)*18
 
-  chartSlug = '{type:"horizontalBar",data:{labels:'+names+',datasets:[{label:"",backgroundColor:"rgb(52, 41, 255)",stack:"Stack0",data:'+meetingHours+',},{label:"Meetings",backgroundColor:"rgb(76, 66, 255)",stack:"Stack0",data:'+meetingHoursLastMonth+',},{label:"",backgroundColor:"rgb(54,162,235)",stack:"Stack0",data:'+tutoringHours+',},{label:"Tutoring",backgroundColor:"rgb(54,162,200)",stack:"Stack0",data:'+tutoringHoursLastMonth+',},{label:"",backgroundColor:"rgb(75,192,192)",stack:"Stack0",data:'+otherHours+',},{label:"Other",backgroundColor:"rgb(75,192,150)",stack:"Stack0",data:'+otherHoursLastMonth+',},],},options:{title:{display:true,text:"CSHSHours",},tooltips:{mode:"index",intersect:false,},responsive:true,scales:{xAxes:[{stacked:true,scaleLabel: {display: true,labelString: "Hours",},},],yAxes:[{stacked:true,gridLines: { display:false },},],},},}'
+  chartSlug = '{type:"horizontalBar",data:{labels:'+namesJSON+',datasets:[{label:"",backgroundColor:"rgb(52, 41, 255)",stack:"Stack0",data:'+meetingHours+',},{label:"Meetings",backgroundColor:"rgb(76, 66, 255)",stack:"Stack0",data:'+meetingHoursLastMonth+',},{label:"",backgroundColor:"rgb(54,162,235)",stack:"Stack0",data:'+tutoringHours+',},{label:"Tutoring",backgroundColor:"rgb(54,162,200)",stack:"Stack0",data:'+tutoringHoursLastMonth+',},{label:"",backgroundColor:"rgb(75,192,192)",stack:"Stack0",data:'+otherHours+',},{label:"Other",backgroundColor:"rgb(75,192,150)",stack:"Stack0",data:'+otherHoursLastMonth+',},{label:"HoursLeftHide",backgroundColor:"rgb(200,200,200)",stack:"Stack0",data:'+hoursLeft+',}],},options:{legend:{labels:{filter: function(item, chart){return !item.text.includes("Hide");}}},title:{display:true,text:"CSHS Hours",},tooltips:{mode:"index",intersect:false,},responsive:true,scales:{xAxes:[{stacked:true,scaleLabel:{display:true,labelString:"Hours",},},],yAxes:[{stacked:true,gridLines:{display:false },},],},},}'
 
 //{xAxes:[{stacked:true,scaleLabel: {display: true,labelString: "Hours",},},],yAxes
 
-  return ("https://quickchart.io/chart?c="+chartSlug)
+  return ("https://quickchart.io/chart?height="+chartImageHeight+"&c="+chartSlug)
 
 }
 
