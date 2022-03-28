@@ -381,7 +381,6 @@ function sendReports(){
   var data = dataRange.getValues();
 
   var hoursChartLink = shortenUrl(getHoursChart())
-  shortenUrl("https://google.com")
 
   for (var i = 0; i < data.length; i++) {
     row = data[i];
