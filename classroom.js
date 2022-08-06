@@ -37,7 +37,7 @@ function listCourses() {
 
 function test343(){
 
-  setRange(getPeople(course_id,"students"),"A101","C")
+  addToRange(getPeople(course_id,"students"),"A101:C199")
   Logger.log("yo")
 }
 
@@ -68,13 +68,47 @@ function getPeople(courseId, personType){
 
 // this function takes in data with a cell, and the column the bounding row. 
 // the function will calulate the row number of the second cell based on data size.
-function setRange(data,rangeCell1,rangeCol2){
+function setRange(data,range){
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Settings");
+  
+  var regex = /^([a-zA-Z]+)(\d+):([a-zA-Z]+)(\d+)$/g
+  range = regex.exec(range)
+  console.log(range)
 
   // The size of the two-dimensional array must match the size of the range.
-  console.log(parseInt(rangeCell1.match(/\d+/g)))
+  //console.log(parseInt(rangeCell1.match(/\d+/g)))
   console.log(data)
-  console.log(`${rangeCell1}:${rangeCol2}${parseInt(rangeCell1.match(/\d+/g))+data.length-1}`)
-  var range = sheet.getRange(`${rangeCell1}:${rangeCol2}${parseInt(rangeCell1.match(/\d+/g))+data.length-1}`);
+  //console.log(`${rangeCell1}:${rangeCol2}${parseInt(rangeCell1.match(/\d+/g))+data.length-1}`)
+  if (parseInt(range[2])+data.length-1 > range[4]){
+    console.error("data does not fit")
+    return
+  }
+  var range = sheet.getRange(`${range[1]+range[2]}:${range[3]}${parseInt(range[2])+data.length-1}`);
   range.setValues(data);
+}
+
+// adds data to a range without overwriting previous rows
+function addToRange(data,range){
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Settings");
+
+  var regex = /^([a-zA-Z]+)(\d+):([a-zA-Z]+)(\d+)$/g
+  range = regex.exec(range)
+  console.log(range[1])
+
+  // finds last filled row in range (can't use binary cause unsorted/blank)
+  // currently only checks first column for data
+  existingData = sheet.getRange(range[0]).getValues()
+  for (var i = existingData.length - 1; i >= 0; i--){
+    console.log(existingData[i])
+    if (existingData[i][0] == '' && existingData[i-1][0] != ''){
+      var insertAt = i
+      break
+    }
+  }
+  console.log(insertAt)
+  console.log(data)
+  
+  var newRangeString = `${range[1]+(parseInt(range[2])+insertAt)}:${range[3]}${range[4]}`
+  console.log(newRangeString)
+  setRange(data, newRangeString)
 }
