@@ -87,6 +87,29 @@ function getRequiredHours(lookupUserName) {
   return(defaultRequiredHours);
 }
 
+// returns the number of hours required for each person
+function getUserInfo(lookupUserName) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Settings2");
+  var startRow = 3; // First row of data to process
+  var numRows = 50; // Number of rows to process
+  // Fetch the range of cells A2:B3
+  var dataRange = sheet.getRange(startRow, 1, numRows, 4);
+  // Fetch values for each row in the Range.
+  var data = dataRange.getValues();
+
+  for (var i = 0; i < data.length; i++) {
+    var row = data[i];
+    if (row[0] == lookupUserName){
+      return {userName:row[0], firstName:row[1], lastName:row[2], requiredHours:row[3]};
+    }
+  }
+  return null;
+}
+
+function test23434() {
+  console.log(getUserInfo("nrado175"))
+}
+
 // adds hours from a username, returns value formatted to two decimal places
 function addHours(lookupUserName) {
 
