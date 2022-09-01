@@ -1,5 +1,5 @@
 const FOOTER_TEXT = ""
-const SEND_EMAILS = true
+const SEND_EMAILS = false
 
 function test(){
   defaultRequiredHours = 10
@@ -19,11 +19,14 @@ function test2(){
 }
 
 function sendUpdateEmail(lookupUserName) {
+    var userInfo = getUserInfo(lookupUserName)
     var merge = rowMerge(lookupUserName)
     var table = mergeToTable(merge)
     var lengthOfMerge = merge.length;
-    var firstName = merge[0][2]
-    var lastName = merge[0][3]
+    //condition ? exprIfTrue : exprIfFalse
+    // replacing these lines with ternary operators and optional chaining to navigate situations when name isn't provided
+    var firstName = userInfo?.firstName ? userInfo["firstName"] : lookupUserName
+    var lastName = userInfo?.lastName ? userInfo["lastName"] : ""
     //this is what the code was before this year var hours = Math.floor(Math.round(addHoursFromMerge(merge) * 1000) / 1000)
     var hoursDecimal = addHours(lookupUserName);
     var hours = Math.floor(Math.round(hoursDecimal * 1000) / 1000)
@@ -205,7 +208,7 @@ function addHoursFromMerge(merge) {
   var rowToAppend = [userName,totalHours,tutoringHours,meetingHours,otherHours,tutoringHoursLastMonth,meetingHoursLastMonth,otherHoursLastMonth,firstName,lastName]
   for (var i = 0; i < rowToAppend.length; i++){
     if (!isNaN(rowToAppend[i])){
-      rowToAppend[i] = parseFloat(rowToAppend[i].toFixed(3))
+      rowToAppend[i] = parseFloat(rowToAppend[i]).toFixed(3)
     }
   }
   statsMerge.push(rowToAppend)
@@ -291,7 +294,9 @@ function loadData() {
   statsMerge = []
   var userNamesList = [];
   for (i = 0; i < data.length; i++) {
-    userNamesList.push(data[i][1])
+    if (data[i][1] != ''){
+      userNamesList.push(data[i][1])
+    }
   }
   uniqueUserNamesList = [...new Set(userNamesList)];
   //uniqueUserNamesList.remove("");
