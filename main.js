@@ -5,7 +5,7 @@ function test(){
   defaultRequiredHours = 10
   loadData()
   Logger.log(uniqueUserNamesList)
-  for (var i = 0; i < uniqueUserNamesList.length-1; i++) {
+  for (var i = 0; i < uniqueUserNamesList.length; i++) {
     //Logger.log(uniqueUserNamesList[i])
     //Logger.log(mergeToTable(rowMerge(uniqueUserNamesList[i])))
     sendUpdateEmail(uniqueUserNamesList[i])
@@ -14,17 +14,13 @@ function test(){
   sendReports();
 }
 
-function test2(){
-  console.log(addHours("dzhou840"));
-}
-
 function sendUpdateEmail(lookupUserName) {
-    var userInfo = getUserInfo(lookupUserName)
     var merge = rowMerge(lookupUserName)
     var table = mergeToTable(merge)
     var lengthOfMerge = merge.length;
     //condition ? exprIfTrue : exprIfFalse
     // replacing these lines with ternary operators and optional chaining to navigate situations when name isn't provided
+    var userInfo = getUserInfo(lookupUserName)
     var firstName = userInfo?.firstName ? userInfo["firstName"] : lookupUserName
     var lastName = userInfo?.lastName ? userInfo["lastName"] : ""
     //this is what the code was before this year var hours = Math.floor(Math.round(addHoursFromMerge(merge) * 1000) / 1000)
@@ -38,7 +34,7 @@ function sendUpdateEmail(lookupUserName) {
     if ((""+minutes).length == 1){
       minutes = "0"+minutes; 
     }
-    var htmlBody = "Hello " + firstName + ",<br><br>" + getGreeting() + "<br>" + getLameProgressBar(Math.floor(hoursDecimal * 10) / 10,getRequiredHours(lookupUserName)) + "<br><br>You have completed " + hours + ":" + minutes + " of CSHS time! You can see a summary below.<br><br>" + table + "<br>Bookmark <a href='"+generatePreFilledLink(lookupUserName,firstName,lastName)+"'>this</a> pre-filled link ";
+    var htmlBody = "Hello " + firstName + ",<br><br>" + getGreeting() + "<br>" + getLameProgressBar(Math.floor(hoursDecimal * 10) / 10,getRequiredHours(lookupUserName)) + "<br><br>You have completed " + hours + ":" + minutes + " of CSHS time! You can see a summary below.<br><br>" + table + "<br>Bookmark <a href='"+generatePrefilledFormLink(lookupUserName)+"'>this</a> pre-filled link ";
 
     //Actually Sends Email to Someone
     //if (lookupUserName=="che193"){
@@ -92,7 +88,7 @@ function getRequiredHours(lookupUserName) {
 
 // returns the number of hours required for each person
 function getUserInfo(lookupUserName) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Settings2");
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Settings");
   var startRow = 3; // First row of data to process
   var numRows = 50; // Number of rows to process
   // Fetch the range of cells A2:B3
@@ -109,13 +105,8 @@ function getUserInfo(lookupUserName) {
   return null;
 }
 
-function test23434() {
-  console.log(getUserInfo("nrado175"))
-}
-
 // adds hours from a username, returns value formatted to two decimal places
 function addHours(lookupUserName) {
-
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Data Log");
   var startRow = 2; // First row of data to process
   var numRows = 1000; // Number of rows to process
@@ -130,12 +121,10 @@ function addHours(lookupUserName) {
     var row = data[i]; //row is equal to list which is of the elements in i column, each cell is an element
     var formDate = row[0]; 
     var userName = row[1];
-    var firstName = row[2]; 
-    var lastName = row[3];
-    var date = row[4]; 
-    var hours = row[5]; 
-    var min = row[6];
-    var description = row[7]; 
+    var date = row[2]; 
+    var hours = row[3]; 
+    var min = row[4];
+    var description = row[5]; 
     if (userName == lookupUserName){
         totalHours += hours + (min/60)
     }
@@ -162,13 +151,13 @@ function addHoursFromMerge(merge) {
     //console.log(row);
     var formDate = row[0]; 
     var userName = row[1];
-    var firstName = row[2]; 
-    var lastName = row[3];
-    var date = row[4]; 
-    //console.log(date)
-    var hours = row[5]; 
-    var min = row[6];
-    var description = row[7]; 
+    var userInfo = getUserInfo(userName)
+    var firstName = userInfo?.firstName ? userInfo["firstName"] : userName
+    var lastName = userInfo?.lastName ? userInfo["lastName"] : ""
+    var date = row[2]; 
+    var hours = row[3]; 
+    var min = row[4];
+    var description = row[5]; 
     
     //Logger.log(month)
     //Logger.log(date.getMonth()-1)
@@ -228,20 +217,23 @@ function rowMerge(lookupUserName) {
   // Fetch values for each row in the Range.
   var data = dataRange.getValues();
   var totalHours = 0
+  var userInfo = getUserInfo(lookupUserName)
+  var firstName = userInfo?.firstName ? userInfo["firstName"] : lookupUserName
+
   for (var i = 0; i < data.length; ++i) {
     
     var row = data[i]; //row is equal to list which is of the elements in i column, each cell is an element
     var formDate = row[0]; 
     var userName = row[1];
-    var firstName = row[2]; 
-    var lastName = row[3];
-    var date = row[4]; 
+    //var firstName = row[2]; 
+    //var lastName = row[3];
+    var date = row[2]; 
 
-    var hours = row[5]; 
-    var min = row[6];
-    var description = row[7]; 
+    var hours = row[3]; 
+    var min = row[4];
+    var description = row[5]; 
     if (userName == lookupUserName){
-        mergedArray.push([formDate,userName,firstName,lastName,date,hours,min,description]);
+        mergedArray.push([formDate,userName,date,hours,min,description]);
     }
   }
   //Logger.log(mergedArray)
@@ -256,10 +248,10 @@ function mergeToTable(merge,dateIndex) {
   for (i = 0; i < merge.length; i++) {
     html = html + "<tr"+s+">"
     for (j = 0; j < merge[i].length; j++){
-      if (j == 5 || j == 6 || j == 7){
+      if (j == 3 || j == 4 || j == 5){
         html = html + "<td style='border:1px solid;padding-left:5px'>" + merge[i][j] + "</td>";
       }
-      else if (j == 4){
+      else if (j == 2){
         date = merge[i][j]
         //console.log("date"+date)
         daysOfWeek = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
@@ -274,12 +266,6 @@ function mergeToTable(merge,dateIndex) {
   html = html + "</table>"
   //html = html + "<style>table, th, td {border:1px solid black; border-collapse: collapse} td {padding-left: 5px}</style>"
   return html
-}
-
-// generates a pre-filled link to the google form with 
-function generatePreFilledLink(userName,firstName,lastName) {
-  //old link return "https://docs.google.com/forms/d/e/1FAIpQLSdk8TmquLj2xm1EkbQCgMAbtk_SIpX0XuPDiecqc2HKoKAlFw/viewform?usp=pp_url&entry.76228359=" + userName + "&entry.1315765559=" + firstName + "&entry.1356290163=" + lastName
- return "https://docs.google.com/forms/d/e/1FAIpQLSfBKs37oy8vdRuu2OaLCV-KP6LF7bFPqrAFC5saOai2sJKy8A/viewform?usp=pp_url&entry.1129123924=" + userName + "&entry.624029689=" + firstName + "&entry.172496163=" + lastName;
 }
 
 // load initial data from the spreadsheet form log
@@ -387,7 +373,7 @@ function getHoursChart(){
   otherHoursLastMonth = "[" + otherHoursLastMonth + "]"
   hoursLeft = "[" + hoursLeft + "]"
 
-  // rough approximation of image height with more names, in order for all names to be visible
+  // rough dynamic approximation of image height with more names, in order for all names to be visible
   chartImageHeight = 450 + (names.length-25)*18
 
   chartSlug = '{type:"horizontalBar",data:{labels:'+namesJSON+',datasets:[{label:"",backgroundColor:"rgb(52, 41, 255)",stack:"Stack0",data:'+meetingHours+',},{label:"Meetings",backgroundColor:"rgb(76, 66, 255)",stack:"Stack0",data:'+meetingHoursLastMonth+',},{label:"",backgroundColor:"rgb(54,162,235)",stack:"Stack0",data:'+tutoringHours+',},{label:"Tutoring",backgroundColor:"rgb(54,162,200)",stack:"Stack0",data:'+tutoringHoursLastMonth+',},{label:"",backgroundColor:"rgb(75,192,192)",stack:"Stack0",data:'+otherHours+',},{label:"Other",backgroundColor:"rgb(75,192,150)",stack:"Stack0",data:'+otherHoursLastMonth+',},{label:"HoursLeftHide",backgroundColor:"rgb(200,200,200)",stack:"Stack0",data:'+hoursLeft+',}],},options:{legend:{labels:{filter:function(item,chart){return !item.text.includes("Hide");}}},title:{display:true,text:"CSHS Hours",},tooltips:{mode:"index",intersect:false,},responsive:true,scales:{xAxes:[{stacked:true,scaleLabel:{display:true,labelString:"Hours",},},],yAxes:[{stacked:true,gridLines:{display:false },},],},},}'
@@ -401,10 +387,7 @@ function getHoursChart(){
 // will loop through teachers in the spreadsheet worksheet "Settings" and send them each a report
 function sendReports(){
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Settings");
-  var startRow = 3; // First row of data to process
-  var numRows = 10; // Number of rows to process
-  // Fetch the range of cells A2:B3
-  var dataRange = sheet.getRange(startRow, 1, numRows, 10);
+  var dataRange = sheet.getRange('F3:G12');
   // Fetch values for each row in the Range.
   var data = dataRange.getValues();
 
@@ -412,8 +395,8 @@ function sendReports(){
 
   for (var i = 0; i < data.length; i++) {
     row = data[i];
-    teacherEmail = row[3];
-    teacherName = row[4];
+    teacherEmail = row[0];
+    teacherName = row[1];
     if (teacherName != "" && teacherEmail != ""){
       sendTeacherEmail(teacherEmail,teacherName, hoursChartLink);
     }
