@@ -1,10 +1,10 @@
 // recursive function that returns link of prefilled form
 // will prefill the first question
 // recursiveness reduces number of API calls
-function prefillFormLink(schoolUsername) {
+function generatePrefilledFormLink(schoolUsername) {
   if (typeof prefillLinkTemplate == "undefined") {
     var template = "XXXTEMPLATEXXX"
-    var sheet = SpreadsheetApp.getActiveSheet();
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Data Log");
     var url = sheet.getFormUrl();
     console.log(url)
 
@@ -18,7 +18,7 @@ function prefillFormLink(schoolUsername) {
 
     prefillLinkTemplate = formResponse.toPrefilledUrl();
     console.log(prefillLinkTemplate)
-    return (prefillFormLink(schoolUsername))
+    return (generatePrefilledFormLink(schoolUsername))
   }
   // if api has bee called, just replace the text
   return prefillLinkTemplate.replace("XXXTEMPLATEXXX", schoolUsername)
