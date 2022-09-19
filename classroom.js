@@ -66,6 +66,18 @@ function getPeople(courseId, personType) {
 //console.log(getPeople(course_id,"teachers"))
 //console.log(getPeople(course_id, "students"))
 
+//converts a raw string of emails to a 2d array
+function emailStringToArray(string){
+  const stringArray = string.split(/\r?\n/); //splits text by line (assumes that raw string will seperates each user's info by line)
+  var informationArray = [];
+  for (let str of stringArray) {
+    const information = str.split(" "); //splits each line at space
+    information[2] = information[2].match("(?<=<)(.*)(?=@)")[1]; //takes only the text inbetween < and @ with regex
+    informationArray.push(information); //adds array to main array
+  }
+  return informationArray;
+}
+
 // this function takes in data with a cell, and the column the bounding row. 
 // the function will calulate the row number of the second cell based on data size.
 function setRange(data, range) {
