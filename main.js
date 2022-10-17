@@ -270,7 +270,11 @@ function mergeToTable(merge,dateIndex) {
 
 // load initial data from the spreadsheet form log
 function loadData() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Data Log");
+  // gets the name of the sheet where google form data is dumped, by reading the data from the "Settings" sheet
+  var settingsSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Settings")
+  var dataLogSheet = settingsSheet.getRange("G15").getValue()
+
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(dataLogSheet);
   var startRow = 2; // First row of data to process
   var numRows = 1000; // Number of rows to process
   // Fetch the range of cells A2:B3
@@ -374,7 +378,7 @@ function getHoursChart(){
   hoursLeft = "[" + hoursLeft + "]"
 
   // rough dynamic approximation of image height with more names, in order for all names to be visible
-  chartImageHeight = 450 + (names.length-25)*18
+  chartImageHeight = 600 + (names.length-25) * 18
 
   chartSlug = '{type:"horizontalBar",data:{labels:'+namesJSON+',datasets:[{label:"",backgroundColor:"rgb(52, 41, 255)",stack:"Stack0",data:'+meetingHours+',},{label:"Meetings",backgroundColor:"rgb(76, 66, 255)",stack:"Stack0",data:'+meetingHoursLastMonth+',},{label:"",backgroundColor:"rgb(54,162,235)",stack:"Stack0",data:'+tutoringHours+',},{label:"Tutoring",backgroundColor:"rgb(54,162,200)",stack:"Stack0",data:'+tutoringHoursLastMonth+',},{label:"",backgroundColor:"rgb(75,192,192)",stack:"Stack0",data:'+otherHours+',},{label:"Other",backgroundColor:"rgb(75,192,150)",stack:"Stack0",data:'+otherHoursLastMonth+',},{label:"HoursLeftHide",backgroundColor:"rgb(200,200,200)",stack:"Stack0",data:'+hoursLeft+',}],},options:{legend:{labels:{filter:function(item,chart){return !item.text.includes("Hide");}}},title:{display:true,text:"CSHS Hours",},tooltips:{mode:"index",intersect:false,},responsive:true,scales:{xAxes:[{stacked:true,scaleLabel:{display:true,labelString:"Hours",},},],yAxes:[{stacked:true,gridLines:{display:false },},],},},}'
 
