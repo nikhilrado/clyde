@@ -2,13 +2,15 @@ const FOOTER_TEXT = ""
 const SEND_EMAILS = false
 
 function test(){
+  mergeAttendanceRecords() // adds attendance records to Data Log
   defaultRequiredHours = 10
   loadData()
-  Logger.log(uniqueUserNamesList)
-  for (var i = 0; i < uniqueUserNamesList.length; i++) {
-    //Logger.log(uniqueUserNamesList[i])
-    //Logger.log(mergeToTable(rowMerge(uniqueUserNamesList[i])))
-    sendUpdateEmail(uniqueUserNamesList[i])
+  Logger.log(getUserUsernames())
+  var usernames = getUserUsernames()
+  for (var i = 0; i < usernames.length; i++) {
+    //Logger.log(usernames[i])
+    //Logger.log(mergeToTable(rowMerge(usernames[i])))
+    sendUpdateEmail(usernames[i])
   }
   
   sendReports();
@@ -25,6 +27,11 @@ function sendUpdateEmail(lookupUserName) {
     var lastName = userInfo?.lastName ? userInfo["lastName"] : ""
     //this is what the code was before this year var hours = Math.floor(Math.round(addHoursFromMerge(merge) * 1000) / 1000)
     var hoursDecimal = addHours(lookupUserName);
+
+    // if the user has no hours recorded, add an entry to statslog
+    if (hoursDecimal == 0){
+      statsMerge.push([lookupUserName,'0','0','0','0','0','0','0',firstName,lastName])
+    }
     var hours = Math.floor(Math.round(hoursDecimal * 1000) / 1000)
     b = addHoursFromMerge(merge);
     //console.log("yeet "+hoursDecimal)
@@ -34,7 +41,7 @@ function sendUpdateEmail(lookupUserName) {
     if ((""+minutes).length == 1){
       minutes = "0"+minutes; 
     }
-    var htmlBody = "Hello " + firstName + ",<br><br>" + getGreeting() + "<br>" + getLameProgressBar(Math.floor(hoursDecimal * 10) / 10,getRequiredHours(lookupUserName)) + "<br><br>You have completed " + hours + ":" + minutes + " of CSHS time! You can see a summary below.<br><br>" + table + "<br>Bookmark <a href='"+generatePrefilledFormLink(lookupUserName)+"'>this</a> pre-filled link ";
+    var htmlBody = "Hello " + firstName + ",<br><br>" + getGreeting() + "<br>" + getLameProgressBar(Math.floor(hoursDecimal * 10) / 10,getRequiredHours(lookupUserName)) + "<br><br>You have completed " + hours + ":" + minutes + " of CSHS time! You can see a summary below.<br><br>" + table + "<br>Protip: Bookmark <a href='"+generatePrefilledFormLink(lookupUserName)+"'>this</a> pre-filled link ";
 
     //Actually Sends Email to Someone
     //if (lookupUserName=="che193"){
@@ -71,7 +78,7 @@ function getRequiredHours(lookupUserName) {
   var startRow = 3; // First row of data to process
   var numRows = 50; // Number of rows to process
   // Fetch the range of cells A2:B3
-  var dataRange = sheet.getRange(startRow, 1, numRows, 2);
+  var dataRange = sheet.getRange(startRow, 1, numRows, 4);
   // Fetch values for each row in the Range.
   var data = dataRange.getValues();
 
@@ -80,7 +87,7 @@ function getRequiredHours(lookupUserName) {
     var userName = row[0];
     //Logger.log(userName)
     if (userName == lookupUserName){
-      return row[1];
+      return row[3];
     }
   }
   return(defaultRequiredHours);
@@ -103,6 +110,33 @@ function getUserInfo(lookupUserName) {
     }
   }
   return null;
+}
+
+// returns list of user objects from the "Settings" sheet
+function getUsers() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Settings");
+  var startRow = 3; // First row of data to process
+  var numRows = 50; // Number of rows to process
+  // Fetch the range of cells A2:B3
+  var dataRange = sheet.getRange(startRow, 1, numRows, 4);
+  // Fetch values for each row in the Range.
+  var data = dataRange.getValues();
+
+  var userList = []
+  for (var i = 0; i < data.length; i++) {
+    var row = data[i];
+    if (row[0]){
+      userList.push({userName:row[0], firstName:row[1], lastName:row[2], requiredHours:row[3]})
+    }
+  }
+  return userList;
+}
+
+// returns a list of all of the usernames from the "Settings" sheet
+function getUserUsernames(){
+  var return_list = []
+  getUsers().forEach(user => return_list.push(user.userName));
+  return return_list
 }
 
 // adds hours from a username, returns value formatted to two decimal places
@@ -200,7 +234,10 @@ function addHoursFromMerge(merge) {
       rowToAppend[i] = parseFloat(rowToAppend[i]).toFixed(3)
     }
   }
-  statsMerge.push(rowToAppend)
+  // if userName is undefined (usually because they have no hours logged), don't add them to statsMerge as that happens in sendUpdateEmail()
+  if (userName){
+    statsMerge.push(rowToAppend)
+  }
 
   return totalHours
 }
@@ -221,7 +258,6 @@ function rowMerge(lookupUserName) {
   var firstName = userInfo?.firstName ? userInfo["firstName"] : lookupUserName
 
   for (var i = 0; i < data.length; ++i) {
-    
     var row = data[i]; //row is equal to list which is of the elements in i column, each cell is an element
     var formDate = row[0]; 
     var userName = row[1];
@@ -326,6 +362,7 @@ function getGreeting(){
 
 // returns a link to a chart that contains the hours data of all students
 function getHoursChart(){
+  // statsMerge is the list that contains the number of hours for each user categorized
   statsMerge = statsMerge.sort(function(a,b) { // sorts the statsMerge by number of hours which is column 2 (index 1)
     return a[1] - b[1];
   });
@@ -362,7 +399,9 @@ function getHoursChart(){
   }
   for (var i = 0; i < statsMerge.length; i++) {
     // calculates the hours required for each person. Also cool ternary statement example.
-    var requiredHoursTemp = getRequiredHours(statsMerge[i][0])-statsMerge[i][1]
+    var requiredHoursTemp = getRequiredHours(statsMerge[i][0])-parseFloat(statsMerge[i][1])
+    var currentHours = statsMerge[i][1]
+    var requiredHours = getRequiredHours(statsMerge[i][0])
     hoursLeft.push(requiredHoursTemp > 0? requiredHoursTemp : 0)
   }
 
