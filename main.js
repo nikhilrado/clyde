@@ -34,17 +34,14 @@ function sendUpdateEmail(lookupUserName) {
     }
     var hours = Math.floor(Math.round(hoursDecimal * 1000) / 1000)
     b = addHoursFromMerge(merge);
-    //console.log("yeet "+hoursDecimal)
     var minutes = Math.round(hoursDecimal%1*60)
     var subject = "You have completed " + hours + " CSHS hours!"
-    //add leading zero of minutes place is a single digit 
+    // add leading zero of minutes place if a single digit 
     if ((""+minutes).length == 1){
       minutes = "0"+minutes; 
     }
     var htmlBody = "Hello " + firstName + ",<br><br>" + getGreeting() + "<br>" + getLameProgressBar(Math.floor(hoursDecimal * 10) / 10,getRequiredHours(lookupUserName)) + "<br><br>You have completed " + hours + ":" + minutes + " of CSHS time! You can see a summary below.<br><br>" + table + "<br>Protip: Bookmark <a href='"+generatePrefilledFormLink(lookupUserName)+"'>this</a> pre-filled link ";
 
-    //Actually Sends Email to Someone
-    //if (lookupUserName=="che193"){
     if (SEND_EMAILS){
       MailApp.sendEmail({to: lookupUserName+"@bethlehemschools.org",name: "Clyde",subject: subject,htmlBody: htmlBody});
       console.log("Email sent to: " + lookupUserName)
@@ -419,7 +416,7 @@ function getHoursChart(){
   // rough dynamic approximation of image height with more names, in order for all names to be visible
   chartImageHeight = 600 + (names.length-25) * 18
 
-  chartSlug = '{type:"horizontalBar",data:{labels:'+namesJSON+',datasets:[{label:"",backgroundColor:"rgb(52, 41, 255)",stack:"Stack0",data:'+meetingHours+',},{label:"Meetings",backgroundColor:"rgb(76, 66, 255)",stack:"Stack0",data:'+meetingHoursLastMonth+',},{label:"",backgroundColor:"rgb(54,162,235)",stack:"Stack0",data:'+tutoringHours+',},{label:"Tutoring",backgroundColor:"rgb(54,162,200)",stack:"Stack0",data:'+tutoringHoursLastMonth+',},{label:"",backgroundColor:"rgb(75,192,192)",stack:"Stack0",data:'+otherHours+',},{label:"Other",backgroundColor:"rgb(75,192,150)",stack:"Stack0",data:'+otherHoursLastMonth+',},{label:"HoursLeftHide",backgroundColor:"rgb(200,200,200)",stack:"Stack0",data:'+hoursLeft+',}],},options:{legend:{labels:{filter:function(item,chart){return !item.text.includes("Hide");}}},title:{display:true,text:"CSHS Hours",},tooltips:{mode:"index",intersect:false,},responsive:true,scales:{xAxes:[{stacked:true,scaleLabel:{display:true,labelString:"Hours",},},],yAxes:[{stacked:true,gridLines:{display:false },},],},},}'
+  chartSlug = `{type:"horizontalBar",data:{labels:${namesJSON},datasets:[{label:"",backgroundColor:"rgb(52, 41, 255)",stack:"Stack0",data:${meetingHours},},{label:"Meetings",backgroundColor:"rgb(76, 66, 255)",stack:"Stack0",data:${meetingHoursLastMonth},},{label:"",backgroundColor:"rgb(54,162,235)",stack:"Stack0",data:${tutoringHours},},{label:"Tutoring",backgroundColor:"rgb(54,162,200)",stack:"Stack0",data:${tutoringHoursLastMonth},},{label:"",backgroundColor:"rgb(75,192,192)",stack:"Stack0",data:${otherHours},},{label:"Other",backgroundColor:"rgb(75,192,150)",stack:"Stack0",data:${otherHoursLastMonth},},{label:"HoursLeftHide",backgroundColor:"rgb(200,200,200)",stack:"Stack0",data:${hoursLeft},}],},options:{legend:{labels:{filter:function(item,chart){return !item.text.includes("Hide");}}},title:{display:true,text:"CSHS Hours",},tooltips:{mode:"index",intersect:false,},responsive:true,scales:{xAxes:[{stacked:true,scaleLabel:{display:true,labelString:"Hours",},},],yAxes:[{stacked:true,gridLines:{display:false },},],},},}`
 
   //{xAxes:[{stacked:true,scaleLabel: {display: true,labelString: "Hours",},},],yAxes
 

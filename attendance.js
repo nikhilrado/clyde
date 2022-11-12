@@ -1,14 +1,15 @@
 const attendenceTextIndicator = '--Attendance Log Entry'
 
 function mergeAttendanceRecords() {
-  addToRange(compileAttendanceRecords(),"Data Log!A2:G100")
+  clearAttendance() // removes any prior entries attendance entries
+  addToRange(compileAttendanceRecords(),"Data Log!A1:G1000")
   console.log("Attendance Records Merged")
 }
 
 // removes all attendance records from Data Log
 function clearAttendance() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Data Log");
-  var dataRange = sheet.getRange("Data Log!A1:D100")
+  var dataRange = sheet.getRange("Data Log!A1:D1000") //TODO: make it go to last row of data
   var data = dataRange.getValues();
 
   rowsToDelete = []
@@ -40,9 +41,6 @@ function isIncreasingBy1(array) {
 
 // returns list attendance records created from the attendance sheet
 function compileAttendanceRecords() {
-  // removes any prior entries attendance entries
-  clearAttendance()
-
   var returnList = []
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Attendance");
   var dataRange = sheet.getRange("Attendance!A1:BA30")
@@ -56,7 +54,7 @@ function compileAttendanceRecords() {
 
   // loops through event columns and creates an entry for each attendance record
   for (var c = 2; c < data[0].length; c++){
-    for (var r = 3; r < data.length; r++) {
+    for (var r = 4; r < data.length; r++) {
       var username = userNames[r]
       var present = data[r][c]
       var meetingTitle = data[0][c]
