@@ -1,7 +1,8 @@
-const FOOTER_TEXT = ""
-const SEND_EMAILS = false
+const FOOTER_TEXT = ''
+const SEND_EMAILS = true
+const DEFAULT_EMAIL_DOMAIN_NAME = 'bethlehemschools.org'
 
-function test(){
+function defaultRun(){
   mergeAttendanceRecords() // adds attendance records to Data Log
   defaultRequiredHours = 10
   loadData()
@@ -27,8 +28,6 @@ function sendUpdateEmail(lookupUserName) {
     var lastName = userInfo?.lastName ? userInfo["lastName"] : ""
     //this is what the code was before this year var hours = Math.floor(Math.round(addHoursFromMerge(merge) * 1000) / 1000)
     var hoursDecimal = addHours(lookupUserName);
-
-    // if the user has no hours recorded, add an entry to statslog
     if (hoursDecimal == 0){
       statsMerge.push([lookupUserName,'0','0','0','0','0','0','0',firstName,lastName])
     }
@@ -36,7 +35,7 @@ function sendUpdateEmail(lookupUserName) {
     b = addHoursFromMerge(merge);
     var minutes = Math.round(hoursDecimal%1*60)
     var subject = "You have completed " + hours + " CSHS hours!"
-    // add leading zero of minutes place if a single digit 
+    // add leading zero to minutes place if a single digit 
     if ((""+minutes).length == 1){
       minutes = "0"+minutes; 
     }
@@ -449,16 +448,20 @@ function sendTeacherEmail(email, name, hoursChartLink){
   var htmlBody = "Hello " + name + ",<br><br>"+getGreeting()+"<br><br>Here's how your students have been doing:<br><br>" + "<img src='"+ hoursChartLink +"' alt='Hours Chart'><br>If you have trouble viewing the chart click <a href='"+hoursChartLink+"'>here</a>"
   var subject = "Here's how your students have been doing..."
 
+  if (!email.includes("@")){
+    email += "@" + DEFAULT_EMAIL_DOMAIN_NAME
+  }
   if (SEND_EMAILS){
     MailApp.sendEmail({to: email,name: "Clyde",subject: subject,htmlBody: htmlBody});
   }
+  Logger.log(email)
   Logger.log(htmlBody)
 }
 
 // creates a firebase short link to decrease chance of gmail stripping image src and link href properties
 // shortener only allows quickchart image links
 // function modified from https://github.com/amitwilson/GoogleAppsScript/blob/master/LinkShortner
-function shortenUrl(longLink) {
+function shortenUrlpp(longLink) { // temporarily disabled this function
   // gets the firebase api key from script properties
   var firebaseWebAPIKey = PropertiesService.getScriptProperties().getProperty('FIREBASE_SHORTERNER_API_KEY');
   // the following line would set the api key at some point
