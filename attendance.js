@@ -14,7 +14,6 @@ function clearAttendance() {
 
   rowsToDelete = []
   for (var i = 0; i < data.length; i++){
-    console.log(i)
     if (data[i][0] == attendenceTextIndicator){
       rowsToDelete.push(i+1)
     }
@@ -53,7 +52,7 @@ function compileAttendanceRecords() {
   }
 
   // loops through event columns and creates an entry for each attendance record
-  for (var c = 2; c < data[0].length; c++){
+  for (var c = 3; c < data[0].length; c++){
     for (var r = 4; r < data.length; r++) {
       var username = userNames[r]
       var present = data[r][c]
