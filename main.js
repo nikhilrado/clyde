@@ -1,4 +1,4 @@
-const FOOTER_TEXT = ''
+const FOOTER_TEXT = '<p style="color:grey;">Clyde was created by Nikhil Radosevich in 2021. <a href="https://github.com/nikhilrado/clyde">View Source Code</a> Service hour questions should be directed towards Eva Ho.</p>'
 const SEND_EMAILS = true
 const DEFAULT_EMAIL_DOMAIN_NAME = 'bethlehemschools.org'
 
@@ -39,7 +39,7 @@ function sendUpdateEmail(lookupUserName) {
     if ((""+minutes).length == 1){
       minutes = "0"+minutes; 
     }
-    var htmlBody = "Hello " + firstName + ",<br><br>" + getGreeting() + "<br>" + getLameProgressBar(Math.floor(hoursDecimal * 10) / 10,getRequiredHours(lookupUserName)) + "<br><br>You have completed " + hours + ":" + minutes + " of CSHS time! You can see a summary below.<br><br>" + table + "<br>Protip: Bookmark <a href='"+generatePrefilledFormLink(lookupUserName)+"'>this</a> pre-filled link ";
+    var htmlBody = "Hello " + firstName + ",<br><br>" + getGreeting() + "<br>" + getLameProgressBar(Math.floor(hoursDecimal * 10) / 10,getRequiredHours(lookupUserName)) + "<br><br>You have completed " + hours + ":" + minutes + " of CSHS time! You can see a summary below.<br><br>" + table + "<br>Protip: Bookmark <a href='"+generatePrefilledFormLink(lookupUserName)+"'>this</a> pre-filled link <br>" + FOOTER_TEXT;
 
     if (SEND_EMAILS){
       MailApp.sendEmail({to: lookupUserName+"@bethlehemschools.org",name: "Clyde",subject: subject,htmlBody: htmlBody});
@@ -71,10 +71,7 @@ function getLameProgressBar(part, whole){
 // returns the number of hours required for each person
 function getRequiredHours(lookupUserName) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Settings");
-  var startRow = 3; // First row of data to process
-  var numRows = 50; // Number of rows to process
-  // Fetch the range of cells A2:B3
-  var dataRange = sheet.getRange(startRow, 1, numRows, 4);
+  var dataRange = sheet.getRange('A3:D60');
   // Fetch values for each row in the Range.
   var data = dataRange.getValues();
 

@@ -42,7 +42,7 @@ function isIncreasingBy1(array) {
 function compileAttendanceRecords() {
   var returnList = []
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Attendance");
-  var dataRange = sheet.getRange("Attendance!A1:BA30")
+  var dataRange = sheet.getRange("Attendance!A1:BA60")
   var data = dataRange.getValues();
 
   // extracts the column containing usernames
